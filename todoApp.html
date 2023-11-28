@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <link rel="stylesheet" href="./ToDoApp.css">
+</head>
+<body>
+
+    <div id="todo-container">
+        <div id="todo-header">
+            <h2>Todo App</h2>
+        </div>
+        <div id="todo-list">
+            <input type="text" id="todo-input" placeholder="Add a new todo...">
+            <div id="todo-items"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const todoInput = document.getElementById("todo-input");
+            const todoItems = document.getElementById("todo-items");
+
+            // Check if there are existing todos in local storage
+            const todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+            // Render existing todos
+            renderTodos();
+
+            // Add new todo
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" && todoInput.value.trim() !== "") {
+                    todos.push({ text: todoInput.value, completed: false });
+                    todoInput.value = "";
+                    saveAndRenderTodos();
+                }
+            });
+
+            // Toggle todo completion
+            todoItems.addEventListener("click", function (event) {
+                if (event.target.tagName.toLowerCase() === "input") {
+                    const todoIndex = event.target.dataset.index;
+                    todos[todoIndex].completed = !todos[todoIndex].completed;
+                    saveAndRenderTodos();
+                }
+            });
+
+            // Delete todo
+            todoItems.addEventListener("click", function (event) {
+                if (event.target.tagName.toLowerCase() === "button") {
+                    const todoIndex = event.target.dataset.index;
+                    todos.splice(todoIndex, 1);
+                    saveAndRenderTodos();
+                }
+            });
+
+            // Save todos to local storage and render
+            function saveAndRenderTodos() {
+                localStorage.setItem("todos", JSON.stringify(todos));
+                renderTodos();
+            }
+
+            // Render todos on the page
+            function renderTodos() {
+                todoItems.innerHTML = "";
+                todos.forEach((todo, index) => {
+                    const todoItem = document.createElement("div");
+                    todoItem.id = "todo-list-item";
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.checked = todo.completed;
+                    checkbox.dataset.index = index;
+
+                    const todoText = document.createElement("span");
+                    todoText.innerText = todo.text;
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerText = "Delete";
+                    deleteButton.dataset.index = index;
+
+                    todoItem.appendChild(checkbox);
+                    todoItem.appendChild(todoText);
+                    todoItem.appendChild(deleteButton);
+
+                    todoItems.appendChild(todoItem);
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
